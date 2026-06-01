@@ -3,7 +3,7 @@ const cors = require("cors");
 const mongoose = require("mongoose");
 require("dotenv").config();
 
-const Product = require("./models/Product");
+const Order = require("./models/Order");
 
 const app = express();
 
@@ -17,27 +17,27 @@ mongoose.connect(process.env.MONGO_URI)
 
 // Home Route
 app.get("/", (req, res) => {
-  res.send("Product Service Running 🚀");
+  res.send("Order Service Running 🚀");
 });
 
-// Create Product
-app.post("/products", async (req, res) => {
+// Create Order
+app.post("/orders", async (req, res) => {
   try {
-    const { name, price, category } = req.body;
+    const { userId, productId, quantity } = req.body;
 
-    if (!name || !price || !category) {
+    if (!userId || !productId || !quantity) {
       return res.status(400).json({
-        message: "Name, Price and Category are required"
+        message: "userId, productId and quantity are required"
       });
     }
 
-    const product = await Product.create({
-      name,
-      price,
-      category
+    const order = await Order.create({
+      userId,
+      productId,
+      quantity
     });
 
-    res.status(201).json(product);
+    res.status(201).json(order);
 
   } catch (error) {
     res.status(500).json({
@@ -46,11 +46,11 @@ app.post("/products", async (req, res) => {
   }
 });
 
-// Get All Products
-app.get("/products", async (req, res) => {
+// Get All Orders
+app.get("/orders", async (req, res) => {
   try {
-    const products = await Product.find();
-    res.json(products);
+    const orders = await Order.find();
+    res.json(orders);
 
   } catch (error) {
     res.status(500).json({
@@ -60,8 +60,8 @@ app.get("/products", async (req, res) => {
 });
 
 // Start Server
-const PORT = process.env.PORT || 5001;
+const PORT = process.env.PORT || 5002;
 
 app.listen(PORT, () => {
-  console.log(`🚀 Product Service running on port ${PORT}`);
+  console.log(`🚀 Order Service running on port ${PORT}`);
 });
