@@ -16,6 +16,13 @@ app.use(express.json());
 mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log("✅ MongoDB Connected"))
   .catch(err => console.log("❌ MongoDB Error:", err));
+
+// Home Route
+app.get("/", (req, res) => {
+  res.send("User Service Running 🚀");
+});
+
+// Register User
 app.post("/register", async (req, res) => {
   try {
     const { name, email, password } = req.body;
@@ -30,7 +37,7 @@ app.post("/register", async (req, res) => {
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    const user = await User.create({
+    await User.create({
       name,
       email,
       password: hashedPassword
@@ -46,28 +53,41 @@ app.post("/register", async (req, res) => {
     });
   }
 });
-// Home Route
-app.get("/", (req, res) => {
-  res.send("User Service Running 🚀");
-});
 
-// Create User
-app.post("/users", async (req, res) => {
+// Login User
+app.post("/login", async (req, res) => {
   try {
-    const { name, email } = req.body;
+    const { email, password } = req.body;
 
-    if (!name || !email) {
+    const user = await User.findOne({ email });
+
+    if (!user) {
       return res.status(400).json({
-        message: "Name and Email are required"
+        message: "Invalid email or password"
       });
     }
 
-    const user = await User.create({
-      name,
-      email
-    });
+    const isMatch = await bcrypt.compare(
+      password,
+      user.password
+    );
 
-    res.status(201).json(user);
+    if (!isMatch) {
+      return res.status(400).json({
+        message: "Invalid email or password"
+      });
+    }
+
+    const token = jwt.sign(
+      { id: user._id },
+      process.env.JWT_SECRET,
+      { expiresIn: "1d" }
+    );
+
+    res.status(200).json({
+      message: "Login successful",
+      token
+    });
 
   } catch (error) {
     res.status(500).json({
