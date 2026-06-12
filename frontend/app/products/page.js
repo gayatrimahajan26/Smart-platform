@@ -59,12 +59,24 @@ export default function Products() {
             {product.category}
           </p>
 
-          <button
-            onClick={() => placeOrder(product._id)}
-            className="bg-blue-500 hover:bg-blue-600 px-4 py-2 rounded mt-4 text-white"
-          >
-            Place Order
-          </button>
+         <button
+  onClick={() => {
+    const cart =
+      JSON.parse(localStorage.getItem("cart")) || [];
+
+    cart.push(product);
+
+    localStorage.setItem(
+      "cart",
+      JSON.stringify(cart)
+    );
+
+    alert("Added to Cart");
+  }}
+  className="bg-blue-500 hover:bg-blue-600 px-4 py-2 rounded mt-4 text-white"
+>
+  Add To Cart
+</button>
         </div>
       ))}
     </div>
