@@ -16,6 +16,25 @@ export default function Cart() {
     (sum, item) => sum + item.price,
     0
   );
+  const placeOrder = async () => {
+  for (const item of cart) {
+    await fetch("http://localhost:5002/orders", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        userId: "gayatri123",
+        productId: item._id,
+        quantity: 1,
+      }),
+    });
+  }
+
+  localStorage.removeItem("cart");
+  alert("Order Placed Successfully");
+  window.location.reload();
+};
 
   return (
     <div className="p-10">
@@ -37,6 +56,12 @@ export default function Cart() {
       <h2 className="text-2xl font-bold mt-5">
         Total: ₹ {total}
       </h2>
+      <button
+  onClick={placeOrder}
+  className="bg-green-500 text-white px-6 py-2 rounded mt-4"
+>
+  Place Order
+</button>
     </div>
   );
 }
